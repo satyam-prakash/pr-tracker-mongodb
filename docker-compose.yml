@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: pr-tracker-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: prtracker
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - pr-tracker-network
+
+  pr-tracker-mongodb-service:
+    build: .
+    container_name: pr-tracker-mongodb-service
+    restart: unless-stopped
+    ports:
+      - "5003:5003"
+    environment:
+      PORT: 5003
+      MONGODB_URI: mongodb://mongodb:27017/prtracker
+      NODE_ENV: production
+    depends_on:
+      - mongodb
+    networks:
+      - pr-tracker-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  pr-tracker-network:
+    driver: bridge
