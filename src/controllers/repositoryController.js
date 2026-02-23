@@ -75,6 +75,18 @@ const repositoryController = {
       next(error);
     }
   },
+
+  async getRepositoryByFullName(req, res, next) {
+    try {
+      const repository = await repositoryService.findRepositoryByFullName(req.params.fullName);
+      if (!repository) {
+        return res.status(404).json({ success: false, error: 'Repository not found' });
+      }
+      res.json({ success: true, data: repository });
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
 module.exports = repositoryController;

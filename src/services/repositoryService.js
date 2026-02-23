@@ -56,6 +56,14 @@ class RepositoryService {
     }
   }
 
+  async findRepositoryByFullName(fullName) {
+    try {
+      return await Repository.findOne({ fullName }).populate('users');
+    } catch (error) {
+      throw new Error(`Error finding repository by full name: ${error.message}`);
+    }
+  }
+
   async getRepositoriesByOwner(ownerLogin) {
     try {
       return await Repository.find({ 'owner.login': ownerLogin, isActive: true })

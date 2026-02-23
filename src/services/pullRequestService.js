@@ -110,6 +110,31 @@ class PullRequestService {
       throw new Error(`Error closing pull request: ${error.message}`);
     }
   }
+
+  async reopenPullRequest(githubId) {
+    try {
+      return await PullRequest.findOneAndUpdate(
+        { githubId },
+        { state: 'open' },
+        { new: true }
+      );
+    } catch (error) {
+      throw new Error(`Error reopening pull request: ${error.message}`);
+    }
+  }
+
+  async getPullRequestsByRepositoryGithubId(repoGithubId) {
+    try {
+      const { Repository } = require('../models');
+      const repo = await Repository.findOne({ githubId: repoGithubId });
+      if (!repo) return [];
+      return await PullRequest.find({ repository: repo._id })
+        .populate('repository')
+        .sort({ createdAt: -1 });
+    } catch (error) {
+      throw new Error(`Error fetching pull requests by repo github id: ${error.message}`);
+    }
+  }
 }
 
 module.exports = new PullRequestService();

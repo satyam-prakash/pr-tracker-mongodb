@@ -117,6 +117,27 @@ const pullRequestController = {
       next(error);
     }
   },
+
+  async reopenPullRequest(req, res, next) {
+    try {
+      const pullRequest = await pullRequestService.reopenPullRequest(req.params.githubId);
+      if (!pullRequest) {
+        return res.status(404).json({ success: false, error: 'Pull request not found' });
+      }
+      res.json({ success: true, data: pullRequest });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getPullRequestsByRepoGithubId(req, res, next) {
+    try {
+      const pullRequests = await pullRequestService.getPullRequestsByRepositoryGithubId(req.params.repoGithubId);
+      res.json({ success: true, data: pullRequests, count: pullRequests.length });
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
 module.exports = pullRequestController;

@@ -11,4 +11,6 @@ router.get('/:id', repositoryController.getRepositoryById);
 router.put('/github/:githubId', repositoryController.updateRepository);
 router.delete('/github/:githubId', repositoryController.deleteRepository);
 
+router.get('/fullname/:fullName', repositoryController.getRepositoryByFullName);
+
 module.exports = router;

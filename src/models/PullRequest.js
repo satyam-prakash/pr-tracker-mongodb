@@ -103,6 +103,31 @@ const pullRequestSchema = new mongoose.Schema(
     updatedAtGithub: {
       type: Date,
     },
+    // AI analysis fields
+    riskLevel: {
+      type: String,
+      enum: ['low', 'medium', 'high', null],
+      default: null,
+    },
+    riskReason: {
+      type: String,
+      trim: true,
+    },
+    securityStatus: {
+      type: String,
+      enum: ['clean', 'flagged', 'pending', null],
+      default: null,
+    },
+    securityFlags: [{
+      type: String,
+    }],
+    aiReview: {
+      type: String,
+      trim: true,
+    },
+    aiAnalyzedAt: {
+      type: Date,
+    },
   },
   { 
     timestamps: true,

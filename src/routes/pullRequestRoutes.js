@@ -13,6 +13,8 @@ router.get('/:id', pullRequestController.getPullRequestById);
 router.put('/github/:githubId', pullRequestController.updatePullRequest);
 router.put('/github/:githubId/merge', pullRequestController.mergePullRequest);
 router.put('/github/:githubId/close', pullRequestController.closePullRequest);
+router.put('/github/:githubId/reopen', pullRequestController.reopenPullRequest);
+router.get('/repo-github/:repoGithubId', pullRequestController.getPullRequestsByRepoGithubId);
 router.delete('/github/:githubId', pullRequestController.deletePullRequest);
 
 module.exports = router;
