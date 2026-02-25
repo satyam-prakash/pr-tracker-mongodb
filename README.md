@@ -1,233 +1,235 @@
-# PR Tracker - MongoDB Service
+# PR Tracker � MongoDB Data Service
 
-A dedicated MongoDB data service for the PR Tracker application that centralizes all database operations and provides RESTful APIs for data management.
+The **MongoDB Data Service** is the persistence layer of the PR Tracker microservices architecture. It exposes a RESTful API for CRUD operations on all core data entities: users, repositories, pull requests, and reviews.
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Environment Variables](#environment-variables)
+- [Running the Service](#running-the-service)
+- [API Endpoints](#api-endpoints)
+- [Data Models](#data-models)
+- [Project Structure](#project-structure)
+- [Docker](#docker)
+
+---
 
 ## Overview
 
-This microservice handles all MongoDB operations for the PR Tracker application, including:
-- User management
-- Repository management
-- Pull request tracking
-- Code review management
+| Property | Value |
+|----------|-------|
+| **Port** | `5004` |
+| **Role** | Database CRUD operations |
+| **Database** | MongoDB (Mongoose ODM) |
+| **Accessed via** | `pr-tracker-service-router` (port 5003) |
 
-## Features
+This service is intentionally thin � it contains no business logic. All requests arrive via the API Gateway, which handles authentication.
 
-- **Centralized Data Management**: All MongoDB operations in one place
-- **RESTful API**: Clean and intuitive endpoints
-- **Service Layer Pattern**: Separation of concerns for better maintainability
-- **Mongoose ODM**: Schema validation and powerful querying
-- **Error Handling**: Comprehensive error handling middleware
-- **Security**: Helmet.js for security headers
-
-## Tech Stack
-
-- Node.js
-- Express.js
-- MongoDB
-- Mongoose
-- Helmet (Security)
-- CORS
+---
 
 ## Prerequisites
 
-- Node.js (v14 or higher)
-- MongoDB (v4.4 or higher)
-- npm or yarn
+- Node.js >= 18
+- MongoDB instance (local or Atlas)
+
+---
 
 ## Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd pr-tracker-mongodb
-   ```
+```bash
+cd pr-tracker-mongodb
+npm install
+cp .env.example .env
+```
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+---
 
-3. **Configure environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Edit `.env` with your configuration:
-   ```env
-   PORT=5003
-   MONGODB_URI=mongodb://127.0.0.1:27017/prtracker
-   NODE_ENV=development
-   ```
+## Environment Variables
 
-4. **Start the service**
-   ```bash
-   # Development mode with auto-restart
-   npm run dev
-   
-   # Production mode
-   npm start
-   ```
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `PORT` | Port the service listens on | `5004` |
+| `MONGO_URI` | MongoDB connection string | `mongodb://localhost:27017/prtracker` |
+| `NODE_ENV` | Environment | `development` |
+
+---
+
+## Running the Service
+
+```bash
+# Development
+npm run dev
+
+# Production
+npm start
+```
+
+---
 
 ## API Endpoints
 
-### Health Check
-- `GET /health` - Service health check
+All routes are prefixed with `/api`.
 
-### Users
-- `POST /api/users` - Create a new user
-- `GET /api/users` - Get all users
-- `GET /api/users/:id` - Get user by ID
-- `GET /api/users/github/:githubId` - Get user by GitHub ID
-- `PUT /api/users/github/:githubId` - Update user
-- `DELETE /api/users/github/:githubId` - Delete user
+### Users � `/api/users`
 
-### Repositories
-- `POST /api/repositories` - Create a new repository
-- `GET /api/repositories` - Get all repositories
-- `GET /api/repositories/:id` - Get repository by ID
-- `GET /api/repositories/github/:githubId` - Get repository by GitHub ID
-- `GET /api/repositories/owner/:owner` - Get repositories by owner
-- `PUT /api/repositories/github/:githubId` - Update repository
-- `DELETE /api/repositories/github/:githubId` - Delete repository
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/api/users` | Create a new user |
+| `GET` | `/api/users` | Get all users |
+| `GET` | `/api/users/:id` | Get user by MongoDB ObjectId |
+| `GET` | `/api/users/github/:githubId` | Get user by GitHub numeric ID |
+| `PUT` | `/api/users/github/:githubId` | Update user (e.g. refresh token) |
+| `DELETE` | `/api/users/github/:githubId` | Delete user |
 
-### Pull Requests
-- `POST /api/pullrequests` - Create a new pull request
-- `GET /api/pullrequests` - Get all pull requests
-- `GET /api/pullrequests/:id` - Get pull request by ID
-- `GET /api/pullrequests/github/:githubId` - Get pull request by GitHub ID
-- `GET /api/pullrequests/repository/:repositoryId` - Get pull requests by repository
-- `GET /api/pullrequests/state/:state` - Get pull requests by state
-- `GET /api/pullrequests/author/:author` - Get pull requests by author
-- `PUT /api/pullrequests/github/:githubId` - Update pull request
-- `PUT /api/pullrequests/github/:githubId/merge` - Merge pull request
-- `PUT /api/pullrequests/github/:githubId/close` - Close pull request
-- `DELETE /api/pullrequests/github/:githubId` - Delete pull request
+### Repositories � `/api/repositories`
 
-### Reviews
-- `POST /api/reviews` - Create a new review
-- `GET /api/reviews` - Get all reviews
-- `GET /api/reviews/:id` - Get review by ID
-- `GET /api/reviews/github/:githubId` - Get review by GitHub ID
-- `GET /api/reviews/pullrequest/:pullRequestId` - Get reviews by pull request
-- `GET /api/reviews/user/:user` - Get reviews by user
-- `GET /api/reviews/state/:state` - Get reviews by state
-- `PUT /api/reviews/github/:githubId` - Update review
-- `DELETE /api/reviews/github/:githubId` - Delete review
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/api/repositories` | Create a repository record |
+| `GET` | `/api/repositories` | Get all repositories |
+| `GET` | `/api/repositories/:id` | Get by MongoDB ObjectId |
+| `GET` | `/api/repositories/github/:githubId` | Get by GitHub repo ID |
+| `GET` | `/api/repositories/owner/:owner` | Get all repos for an owner |
+| `GET` | `/api/repositories/fullname/:fullName` | Get by `owner/repo` full name |
+| `PUT` | `/api/repositories/github/:githubId` | Update repository |
+| `DELETE` | `/api/repositories/github/:githubId` | Delete repository |
+
+### Pull Requests � `/api/pullrequests`
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/api/pullrequests` | Create a pull request record |
+| `GET` | `/api/pullrequests` | Get all pull requests |
+| `GET` | `/api/pullrequests/:id` | Get by MongoDB ObjectId |
+| `GET` | `/api/pullrequests/github/:githubId` | Get by GitHub PR ID |
+| `GET` | `/api/pullrequests/repository/:repositoryId` | Get PRs for a repository |
+| `GET` | `/api/pullrequests/repo-github/:repoGithubId` | Get PRs by repo GitHub ID |
+| `GET` | `/api/pullrequests/state/:state` | Get PRs by state (`open`/`closed`/`merged`) |
+| `GET` | `/api/pullrequests/author/:author` | Get PRs by author username |
+| `PUT` | `/api/pullrequests/github/:githubId` | Update pull request |
+| `PUT` | `/api/pullrequests/github/:githubId/merge` | Mark PR as merged |
+| `PUT` | `/api/pullrequests/github/:githubId/close` | Mark PR as closed |
+| `PUT` | `/api/pullrequests/github/:githubId/reopen` | Reopen PR |
+| `DELETE` | `/api/pullrequests/github/:githubId` | Delete pull request |
+
+### Reviews � `/api/reviews`
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/api/reviews` | Create a review |
+| `GET` | `/api/reviews` | Get all reviews |
+| `GET` | `/api/reviews/:id` | Get by MongoDB ObjectId |
+| `GET` | `/api/reviews/github/:githubId` | Get review by GitHub ID |
+| `GET` | `/api/reviews/pullrequest/:pullRequestId` | Get reviews for a PR |
+| `GET` | `/api/reviews/user/:user` | Get reviews by reviewer |
+| `GET` | `/api/reviews/state/:state` | Get reviews by state |
+| `PUT` | `/api/reviews/github/:githubId` | Update review |
+| `DELETE` | `/api/reviews/github/:githubId` | Delete review |
+
+### Health
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/health` | Service health check |
+
+---
+
+## Data Models
+
+### User
+```
+githubId       Number  (unique)
+username       String
+email          String
+avatarUrl      String
+accessTokenEncrypted  String
+createdAt      Date
+updatedAt      Date
+```
+
+### Repository
+```
+githubId       Number  (unique)
+fullName       String  (e.g. "owner/repo")
+owner          String
+name           String
+description    String
+private        Boolean
+defaultBranch  String
+createdAt / updatedAt  Date
+```
+
+### PullRequest
+```
+githubId       Number  (unique)
+repositoryId   ObjectId (ref: Repository)
+title          String
+body           String
+state          String  (open | closed | merged)
+author         String
+sourceBranch   String
+targetBranch   String
+tags           [String]
+createdAt / updatedAt / mergedAt / closedAt  Date
+```
+
+### Review
+```
+githubId       Number  (unique)
+pullRequestId  ObjectId (ref: PullRequest)
+user           String
+state          String  (APPROVED | CHANGES_REQUESTED | COMMENTED | DISMISSED)
+body           String
+submittedAt    Date
+```
+
+---
 
 ## Project Structure
 
 ```
 pr-tracker-mongodb/
-├── src/
-│   ├── config/
-│   │   └── db.js                 # Database connection
-│   ├── controllers/
-│   │   ├── userController.js
-│   │   ├── repositoryController.js
-│   │   ├── pullRequestController.js
-│   │   └── reviewController.js
-│   ├── models/
-│   │   ├── User.js
-│   │   ├── Repository.js
-│   │   ├── PullRequest.js
-│   │   ├── Review.js
-│   │   └── index.js
-│   ├── routes/
-│   │   ├── userRoutes.js
-│   │   ├── repositoryRoutes.js
-│   │   ├── pullRequestRoutes.js
-│   │   └── reviewRoutes.js
-│   ├── services/
-│   │   ├── userService.js
-│   │   ├── repositoryService.js
-│   │   ├── pullRequestService.js
-│   │   ├── reviewService.js
-│   │   └── index.js
-│   ├── middleware/
-│   │   └── errorHandler.js
-│   └── index.js                  # Main application file
-├── .env.example
-├── .gitignore
-├── Dockerfile
-├── package.json
-└── README.md
++-- src/
+|   +-- index.js                         # Entry point (port 5004)
+|   +-- config/
+|   |   +-- db.js                        # Mongoose connection
+|   +-- models/
+|   |   +-- index.js                     # Exports all models
+|   |   +-- User.js
+|   |   +-- Repository.js
+|   |   +-- PullRequest.js
+|   |   +-- Review.js
+|   +-- controllers/
+|   |   +-- userController.js
+|   |   +-- repositoryController.js
+|   |   +-- pullRequestController.js
+|   |   +-- reviewController.js
+|   +-- routes/
+|   |   +-- userRoutes.js
+|   |   +-- repositoryRoutes.js
+|   |   +-- pullRequestRoutes.js
+|   |   +-- reviewRoutes.js
+|   +-- services/
+|   |   +-- index.js
+|   |   +-- pullRequestService.js
+|   |   +-- repositoryService.js
+|   |   +-- reviewService.js
+|   |   +-- userService.js
+|   +-- middleware/
+|       +-- errorHandler.js
++-- package.json
++-- Dockerfile
 ```
 
-## Docker Support
+---
 
-Build and run with Docker:
+## Docker
 
 ```bash
-# Build the image
 docker build -t pr-tracker-mongodb .
-
-# Run the container
-docker run -p 5003:5003 --env-file .env pr-tracker-mongodb
+docker run -p 5004:5004 --env-file .env pr-tracker-mongodb
 ```
-
-## Development
-
-```bash
-# Run in development mode with nodemon
-npm run dev
-
-# Run tests (when implemented)
-npm test
-```
-
-## Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| PORT | Server port | 5003 |
-| MONGODB_URI | MongoDB connection string | mongodb://127.0.0.1:27017/prtracker |
-| NODE_ENV | Environment (development/production) | development |
-
-## Models
-
-### User Model
-- GitHub authentication details
-- User profile information
-- Associated repositories
-
-### Repository Model
-- Repository information from GitHub
-- Owner details
-- Statistics (stars, forks, issues)
-- Associated users
-
-### PullRequest Model
-- PR details and metadata
-- State management (open, closed, merged)
-- Author and reviewers
-- Code change statistics
-
-### Review Model
-- Review information
-- Reviewer details
-- Review state (APPROVED, CHANGES_REQUESTED, etc.)
-- Associated pull request
-
-## Error Handling
-
-All errors are handled by the global error handler middleware and return JSON responses:
-
-```json
-{
-  "success": false,
-  "error": "Error message here",
-  "stack": "Stack trace (development only)"
-}
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-ISC
