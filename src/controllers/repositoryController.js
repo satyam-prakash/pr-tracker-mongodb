@@ -87,6 +87,25 @@ const repositoryController = {
       next(error);
     }
   },
+
+  async importRepositories(req, res, next) {
+    try {
+      const userId = req.headers['x-user-id'];
+      console.log("userid is:", userId );
+      const { repoIds } = req.body;
+      console.log("repo ids in req body are: ", req.body.repoIds);
+
+      const user = await repositoryService.importRepositories(repoIds, userId);
+
+      res.json({
+        success: true,
+        data: user
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  
 };
 
 module.exports = repositoryController;
