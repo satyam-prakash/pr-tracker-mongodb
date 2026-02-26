@@ -41,7 +41,7 @@ app.use('/api/reviews', reviewRoutes);
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ success: repo, error: 'Route not found' });
+  res.status(404).json({ success: false, error: 'Route not found' });
 });
 
 // Error handler
