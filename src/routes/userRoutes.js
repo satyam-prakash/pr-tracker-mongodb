@@ -6,7 +6,7 @@ const userController = require('../controllers/userController');
 router.post('/', userController.createUser);
 router.get('/', userController.getAllUsers);
 router.get('/github/:githubId', userController.getUserByGithubId);
-router.get('/:id', userController.getUserById);
+router.get('/me', userController.getCurrentUser);
 router.put('/github/:githubId', userController.updateUser);
 router.delete('/github/:githubId', userController.deleteUser);
 

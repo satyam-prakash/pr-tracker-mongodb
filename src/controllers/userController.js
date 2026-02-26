@@ -1,4 +1,6 @@
 const { userService } = require('../services');
+const mongoose = require('mongoose');
+const User = require('../models/User');
 
 const userController = {
   async createUser(req, res, next) {
@@ -22,12 +24,25 @@ const userController = {
     }
   },
 
-  async getUserById(req, res, next) {
+  async getCurrentUser(req, res, next) {
     try {
-      const user = await userService.findUserById(req.params.id);
-      if (!user) {
-        return res.status(404).json({ success: false, error: 'User not found' });
+      const userId = req.headers["x-user-id"];
+      console.log("req is: ", req);
+
+      if (!userId || Array.isArray(userId)) {
+        return res.status(401).json({ success: false, error: "Unauthorized" });
       }
+
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ success: false, error: "Invalid user id" });
+      }
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({ success: false, error: "User not found" });
+      }
+
       res.json({ success: true, data: user });
     } catch (error) {
       next(error);

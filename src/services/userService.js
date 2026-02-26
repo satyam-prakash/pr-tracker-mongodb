@@ -13,7 +13,9 @@ class UserService {
 
   async findUserByGithubId(githubId) {
     try {
-      return await User.findOne({ githubId }).populate('repositories');
+      return await User.findOne({
+        githubId: String(githubId)
+      }).populate('repositories');
     } catch (error) {
       throw new Error(`Error finding user: ${error.message}`);
     }

@@ -12,11 +12,15 @@ const pullRequestRoutes = require('./routes/pullRequestRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 5004;
+const PORT = process.env.PORT;
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL,
+  credentials : true
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -37,7 +41,7 @@ app.use('/api/reviews', reviewRoutes);
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ success: false, error: 'Route not found' });
+  res.status(404).json({ success: repo, error: 'Route not found' });
 });
 
 // Error handler

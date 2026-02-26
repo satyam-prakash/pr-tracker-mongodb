@@ -1,4 +1,5 @@
 const { Repository } = require('../models');
+const User = require('../models/User');
 
 class RepositoryService {
   async createRepository(repoData) {
@@ -11,9 +12,11 @@ class RepositoryService {
     }
   }
 
+
+
   async findRepositoryByGithubId(githubId) {
     try {
-      return await Repository.findOne({ githubId }).populate('users');
+      return await Repository.findOne({ githubRepoId: githubId }).populate('users');
     } catch (error) {
       throw new Error(`Error finding repository: ${error.message}`);
     }
@@ -84,6 +87,20 @@ class RepositoryService {
     } catch (error) {
       throw new Error(`Error adding user to repository: ${error.message}`);
     }
+  }
+
+  async importRepositories(repoGithubIds, userId) {
+    console.log("user id", userId);
+    console.log("repoIds", repoGithubIds);
+    await User.updateOne(
+      { _id: userId },
+      { $addToSet: { repositories: { $each: repoGithubIds } } }
+    );
+
+    const user = await User.findById(userId);
+
+    console.log("updated user with new repos", user);
+    return user;
   }
 }
 

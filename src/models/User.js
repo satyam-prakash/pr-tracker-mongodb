@@ -30,8 +30,7 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
     repositories: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Repository'
+      type: Number
     }],
   },
   { 
