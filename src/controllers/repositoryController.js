@@ -60,7 +60,12 @@ const repositoryController = {
 
   async getAllRepositories(req, res, next) {
     try {
-      const repositories = await repositoryService.getAllRepositories(req.query);
+      const userId = req.headers['x-user-id'];
+      const filters = { ...req.query };
+      if (userId) {
+        filters.users = userId;
+      }
+      const repositories = await repositoryService.getAllRepositories(filters);
       res.json({ success: true, data: repositories, count: repositories.length });
     } catch (error) {
       next(error);
